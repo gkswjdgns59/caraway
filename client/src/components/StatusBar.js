@@ -1,6 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Avatar, Button, Badge } from '@material-ui/core';
 import { makeStyles, ThemeProvider, createTheme, withStyles } from '@material-ui/core/styles';
+
+import { io } from "socket.io-client";
+const serverURL = 'http://localhost:5000/'
+const socket = io(serverURL);
 
 
 const theme = createTheme({
@@ -23,7 +27,7 @@ const useStyles = makeStyles((theme)=>({
     bar:{
         margin: '0px 23px',
         display: 'flex',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         '& > *': {
             margin: theme.spacing(1.2),
@@ -51,16 +55,20 @@ const useStyles = makeStyles((theme)=>({
 
 const StyledBadge = withStyles((theme) => ({
     badge: {
-      border: `2px solid #EAEAEA`,
-      padding: '0 4px',
-    },
-  }))(Badge);
+        border: `2px solid #EAEAEA`,
+        padding: '0 4px',
+        },
+    }))(Badge);
+
+const user = '임세훈'
+const key = 'abc'
 
 function StatusBar() {
     const classes = useStyles();
     const [invisible, setInvisible] = useState(true);
     const [clickText, setClickText] = useState('Ready');
     const [clickColor, setClickColor] = useState('#77B255');
+    const [people, setPeople] = useState({})
     const handleBadge = event => {
         setInvisible(!invisible);
         if (clickText==='Ready'){
@@ -72,12 +80,34 @@ function StatusBar() {
         }
     };
 
-    return(
-        <ThemeProvider theme={theme}>
-            <div className={classes.wrap}>
-                <div className={classes.root} style={{backgroundColor: '#EAEAEA', height: '65px', borderRadius: '5px'}}>
-                    <div className={classes.bar} style={{margin: '0px 23px', display: 'flex'}}>
-                        <Avatar style={{backgroundColor: '#A8C9AE', fontSize: '24px'}}>😍</Avatar>
+    socket.on('data',(json)=>{
+        // console.log(json[key].people)
+        setPeople(json[key].people)
+    })
+
+    useEffect(()=>{
+        socket.emit('fetch')
+    },[])
+
+    const printAvatar = () => {
+        return Object.keys(people).map(name=>{
+            if(name===user){
+                return(
+                    <StyledBadge overlap="circular"
+                        anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                        }}
+                        color="primary"
+                        badgeContent=" "
+                        invisible={invisible}>
+                        <Avatar style={{backgroundColor: `${people[name].color}`, fontSize: '24px'}}>{people[name].icon}</Avatar>
+                    </StyledBadge>
+                )
+            }
+            else{
+                if(people[name].ready){
+                    return (
                         <StyledBadge overlap="circular"
                             anchorOrigin={{
                             vertical: 'bottom',
@@ -85,18 +115,35 @@ function StatusBar() {
                             }}
                             color="primary"
                             badgeContent=" "
-                            invisible={invisible}>
-                            <Avatar style={{backgroundColor: '#E1B3B3', fontSize: '24px'}}>😇</Avatar>
+                            invisible={false}>
+                            <Avatar style={{backgroundColor: `${people[name].color}`, fontSize: '24px'}}>{people[name].icon}</Avatar>
                         </StyledBadge>
-                        
-                        <Avatar style={{backgroundColor: '#A7C7E7'}}>😡</Avatar>
-                        <Avatar style={{backgroundColor: '#C9C3E0'}}>😎</Avatar>
-                        <Avatar style={{backgroundColor: '#F6DC77'}}>🤠</Avatar>
-                        <Avatar style={{backgroundColor: '#A8C9AE'}}>😈</Avatar>
-                        <Avatar style={{backgroundColor: '#A8C9AE'}}>🤖</Avatar>
-                        <Avatar style={{backgroundColor: '#A8C9AE'}}>👻</Avatar>
-                        <Avatar style={{backgroundColor: '#A8C9AE'}}>😨</Avatar>
-                        <Avatar style={{backgroundColor: '#A8C9AE'}}>😑</Avatar>
+                    )
+                }
+                else{
+                    return(
+                        <StyledBadge overlap="circular"
+                            anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                            }}
+                            color="primary"
+                            badgeContent=" "
+                            invisible={true}>
+                            <Avatar style={{backgroundColor: `${people[name].color}`, fontSize: '24px'}}>{people[name].icon}</Avatar>
+                        </StyledBadge>
+                    )
+                }
+            }
+        })
+    }
+
+    return(
+        <ThemeProvider theme={theme}>
+            <div className={classes.wrap}>
+                <div className={classes.root} style={{backgroundColor: '#EAEAEA', height: '65px', borderRadius: '5px'}}>
+                    <div className={classes.bar} style={{margin: '0px 23px', display: 'flex'}}>
+                        {printAvatar()}
                     </div>
                 </div>
                 <div>

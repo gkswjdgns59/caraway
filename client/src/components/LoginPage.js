@@ -4,14 +4,14 @@ import { makeStyles, ThemeProvider, createTheme} from '@material-ui/core/styles'
 import { EmojiButton } from '@joeattardi/emoji-button';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import ColorLensIcon from '@material-ui/icons/ColorLens';
+import Auth from './Auth';
+import { io } from "socket.io-client";
+const serverURL = 'http://localhost:5000/'
+const socket = io(serverURL);
+
+
 
 const useStyles = makeStyles((theme)=>({
-    root:{
-        minHeight: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
     profile:{
         margin: '25px 0px',
         display: 'flex',
@@ -36,7 +36,14 @@ const theme = createTheme({
     }
 })
 
-function LoginPage() {
+function LoginPage(props) {
+
+    socket.on("loggedIn", (data)=>{
+        const userName = Object.keys(data)[0];
+        Auth.login(userName, data[userName].code);
+        props.callLog('login');
+    })
+
     const classes = useStyles();
     const [code, setCode] = useState('');
     const [name, setName] = useState('');
@@ -48,7 +55,7 @@ function LoginPage() {
         position: 'bottom-start',
         categories: ['smileys']
       });
-  
+
     picker.on('emoji', selection => {
         setEmoji(selection.emoji);
     });
@@ -72,7 +79,8 @@ function LoginPage() {
             'color': picked,
             'code': code
         };
-        console.log(result);
+        socket.emit("onLogin", result);
+        props.callClose(true);
     };
 
     const pickColor = event => {
@@ -104,8 +112,8 @@ function LoginPage() {
 
     return(
         <ThemeProvider theme={theme}>
-            <div className={classes.root}>
-                <Card style={{width: '500px', backgroundColor: '#F6F6F6'}} elevation={0}>
+            <div>
+                <Card style={{backgroundColor: '#F6F6F6'}} elevation={0}>
                     <CardContent style={{padding: '30px'}}>
                         <Typography style={{fontWeight: '800', fontSize: '30px'}}>
                             로그인

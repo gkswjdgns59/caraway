@@ -3,7 +3,7 @@ import { Divider, makeStyles, Typography } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 
-const people = {임세훈:{icon:"😗", color:"#a8c9ae"}, 'Han Jeonghoon':{icon:"😗", color:"#e1b3b3"}, '전우정':{icon:"😗", color:"#f6dc77"}, 'Chung Jaeryung':{icon:"😗", color:'#A7C7E7'}}
+// const people = {임세훈:{icon:"😗", color:"#a8c9ae"}, 'Han Jeonghoon':{icon:"😗", color:"#e1b3b3"}, '전우정':{icon:"😗", color:"#f6dc77"}, 'Chung Jaeryung':{icon:"😗", color:'#A7C7E7'}}
 
 const useStyles = makeStyles((theme)=>({
     title: {
@@ -26,9 +26,8 @@ const useStyles = makeStyles((theme)=>({
     }
 }))
 
-const Project_info = ({projectName}) => {
+const Project_info = ({projectName,people,user}) => {
     const classes=useStyles();
-    const user = '임세훈'
     const printMember = () => {
         const nameList = Object.keys(people)
         const printName = (name) => {

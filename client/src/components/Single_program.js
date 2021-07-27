@@ -7,8 +7,8 @@ import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
 
-const tempData = {description:"1차시 전기", programName:"OT", memberNumber:"4", memberList:{sadfgrebt:"임세훈", asdfjhasdf:"Han Jeonghoon"}}
-const tempPeople = {임세훈:{icon:"😗", color:"#a8c9ae"}, 'Han Jeonghoon':{icon:"😗", color:"#e1b3b3"}, '전우정':{icon:"😗", color:"#f6dc77"}, 'Chung Jaeryung':{icon:"😗", color:'#A7C7E7'}}
+// const tempData = {description:"1차시 전기", programName:"OT", memberNumber:"4", memberList:{sadfgrebt:"임세훈", asdfjhasdf:"Han Jeonghoon"}}
+// const tempPeople = {임세훈:{icon:"😗", color:"#a8c9ae"}, 'Han Jeonghoon':{icon:"😗", color:"#e1b3b3"}, '전우정':{icon:"😗", color:"#f6dc77"}, 'Chung Jaeryung':{icon:"😗", color:'#A7C7E7'}}
 
 const useStyles = makeStyles((theme)=>({
     title: {
@@ -32,12 +32,20 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 const Single_program = (programData) => {
+
     const classes=useStyles();
+
     const setSelected = programData.setSelected
 
-    const userColor = '#a9c9ae'
+    const [userColor, setUserColor] = useState('#ffffff')
     const selectedColor = '#bababa'
-    const user = '임세훈'
+    const user = programData.user
+
+    useEffect(()=>{
+        console.log(programData)
+        if(Object.keys(programData.people).length===0) return
+        else setUserColor(programData.people[programData.user].color)
+    },[programData.people])
 
     const printMember = () => {
         const nameList = Object.values(programData.memberList)
@@ -58,11 +66,24 @@ const Single_program = (programData) => {
             }
 
         }
+
+        const checkColor = (name) => {
+            if(!programData.people[name]) return '#ffffff'
+            else{
+                return programData.people[name].color
+            }
+        }
+        const checkIcon = (name) => {
+            if(!programData.people[name]) return ''
+            else{
+                return programData.people[name].icon
+            }
+        }
         return nameList.map(name => {
             return (
                 <Box display="flex" flexDirection="row" alignItems='center' style={{padding:5}}>
                     <Box style={{width:60}} display='flex' justifyContent="center">
-                        <Box><Avatar style={{backgroundColor:`${tempPeople[name].color}`}}>{tempPeople[name].icon}</Avatar></Box>
+                        <Box><Avatar style={{backgroundColor:`${checkColor(name)}`}}>{checkIcon(name)}</Avatar></Box>
                     </Box>
                     {printName(name)}
                 </Box>

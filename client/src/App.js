@@ -1,4 +1,11 @@
 import React from 'react';
+import { io } from "socket.io-client";
+const serverURL = 'http://localhost:5000/'
+const socket = io(serverURL);
+
+socket.on("connect", () => {
+  console.log(socket.id);
+});
 
 function App() {
   return (
@@ -12,6 +19,9 @@ function App() {
           console.log(data);
         });
       }}>get data</button>
+      <button type="button" onClick={()=>{
+        socket.emit('check');
+      }}>test</button>
     </div>
   );
 }
